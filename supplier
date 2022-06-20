@@ -1,0 +1,47 @@
+drop database supplier;
+create database supplier;
+use supplier;
+create table SUPPLIERS(sid integer primary key, sname varchar(20), city varchar(20));
+create table PARTS(pid integer primary key, pname varchar(20), color varchar(10));
+create table CATALOG(sid integer, pid integer, foreign key(sid) references SUPPLIERS(sid), foreign key(pid) references PARTS(pid), cost float(6), primary key(sid,pid));
+desc SUPPLIERS;
+desc PARTS;
+desc CATALOG;
+insert into SUPPLIERS values(10001, 'Acme Widget','Bangalore');
+insert into SUPPLIERS values(10002, 'Johns','Kolkata');
+insert into SUPPLIERS values(10003, 'Vimal','Mumbai');
+insert into SUPPLIERS values(10004, 'Mahindra','Mumbai');
+select * from SUPPLIERS;
+commit;
+
+insert into PARTS values(20001,'Book','Red');
+insert into PARTS values(20002,'Pen','Red');
+insert into PARTS values(20003,'Pencil','Green');
+insert into PARTS values(20004,'Mobile','Green');
+insert into PARTS values(20005,'Charger','Black');
+select * from PARTS;
+commit;
+
+insert into CATALOG values(10001,'20001','10');
+insert into CATALOG values(10001,'20002','10');
+insert into CATALOG values(10001,'20003','30');
+insert into CATALOG values(10001,'20004','10');
+insert into CATALOG values(10001,'20005','10');
+insert into CATALOG values(10002,'20001','10');
+insert into CATALOG values(10002,'20002','20');
+insert into CATALOG values(10003,'20003','30');
+insert into CATALOG values(10004,'20004','40');
+select * from CATALOG;
+commit;
+/*QUERY 1*/
+select distinct P.pname from PARTS P, CATALOG C where P.pid=C.pid;
+/*QUERY 2*/
+select SUPPLIERS.sname from SUPPLIERS  where not exists((select PARTS.pid from PARTS ) NULL (select CATALOG.pid from CATALOG  where CATALOG.sid=SUPPLIER.sid));
+/*QUERY 3*/
+/*select S.sname from SUPPLIERS S where not exists(( select P.pid from PARTS P where P.color='Red') minus (select C.pid from CATALOG C, PARTS P where C.sid=S.sid and C.pid=P.pid and P.color='Red');*/
+/*QUERY 4*/
+/*select pname from PARTS where id in(select pid from CATALOGE where sid=(select sid from SUPPLIERS where sname='Acme Widget') left join (select pid from CATALOGE where sid in (select sid from SUPPLIERS where sname <> 'Acme Widget'));*/
+/*QUERY 5*/
+select distinct C.sid from CATALOG C where C.cost>(select avg(C1.cost) from CATALOG C1 where C1.pid=C.pid);
+/*QUERY 6*/
+select P.pid, S.sname from PARTS P, SUPPLIERS S, CATALOG C where C.pid=P.pid and C.sid=S.sid and C.cost=(select max(C1.cost) from CATALOG C1 where C1.pid=P.pid);
